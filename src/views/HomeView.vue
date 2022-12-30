@@ -4,6 +4,6 @@ import GetAPI from '@/components/GetAPI.vue';
 
 <template>
   <suspense>
-    <div class="home"><GetAPI /></div>
+    <div><GetAPI /></div>
   </suspense>
 </template>
