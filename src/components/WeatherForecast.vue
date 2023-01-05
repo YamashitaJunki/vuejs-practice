@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import Vue from 'vue';
+import { useRoute } from 'vue-router';
 const route = useRoute();
 const APIKEY = process.env.VUE_APP_OPEN_WEATHER_API_KEY;
 if (!APIKEY) {
@@ -21,9 +20,8 @@ const weatherInfo = {
   weather: weatherInfoList.weather[0].main,
   temp: weatherInfoList.main.temp,
 };
-const aa = ref('aaaa');
 const push = () => {
-  city.value = 'sendai';
+  city.value = 'kyoto';
 };
 const sendai = 'sendai';
 const kyoto = 'kyoto';
@@ -32,13 +30,14 @@ const kyoto = 'kyoto';
 <template id="app">
   <h1>Weather Forecast</h1>
 
-  <div>{{ city }}</div>
-  <div>{{ aa }}</div>
-  <div><router-link :to="{ name: 'weatherForecast', query: { id: sendai } }">仙台の天気</router-link></div>
-  <div><router-link :to="{ name: 'weatherForecast', query: { id: kyoto } }">京都の天気</router-link></div>
+  <div>cityの値:{{ city }}</div>
+  <div><router-link :to="{ name: 'weatherForecast', query: { id: sendai } }">クエリをsendaiに変更</router-link></div>
+  <div><router-link :to="{ name: 'weatherForecast', query: { id: kyoto } }">クエリをkyotoに変更</router-link></div>
 
   <router-link :to="{ name: 'home' }">ホームに戻る</router-link>
-  <button @click="push">押してね</button>
+  <div>
+    <button @click="push">cityの値をsendaiに変更</button>
+  </div>
   <table>
     <tr>
       <th>CITY</th>
