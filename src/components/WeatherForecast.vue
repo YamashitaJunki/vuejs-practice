@@ -1,13 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { availableCities } from '@/utiles/availableCities';
+
 const route = useRoute();
+const router = useRouter();
+const cities = Object.keys(availableCities());
+const cityNamelist = Object.entries(availableCities()).map((city) => {
+  return city[1].name;
+});
+const selectedCityName = availableCities()[route.query.id].name;
 const APIKEY = process.env.VUE_APP_OPEN_WEATHER_API_KEY;
 if (!APIKEY) {
   throw new Error('環境変数が入っていません');
 }
-const city = ref(route.query.id);
-const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city.value}&units=metric&appid=${APIKEY}`);
+
+const res = await fetch(
+  `https://api.openweathermap.org/data/2.5/weather?q=${route.query.id}&units=metric&appid=${APIKEY}`
+);
 if (!res) {
   throw new Error('fetchの結果が空です');
 }
@@ -17,27 +27,42 @@ if (res.status !== 200) {
 const weatherInfoList = await res.json();
 const weatherInfo = {
   name: weatherInfoList.name,
-  weather: weatherInfoList.weather[0].main,
-  temp: weatherInfoList.main.temp,
+  icon: weatherInfoList.weather[0].icon,
+  temp: Math.round(weatherInfoList.main.temp),
 };
-const push = () => {
-  city.value = 'kyoto';
+
+const selectCity = (selectedCity) => {
+  const includeList = cities.filter((city) => availableCities()[city].name === selectedCity);
+  router.push({ name: 'weatherForecast', query: { id: includeList } });
 };
-const sendai = 'sendai';
-const kyoto = 'kyoto';
+
+watch(
+  () => route.query.id,
+  () => {
+    location.reload();
+  }
+);
+const iconImage = `http://openweathermap.org/img/wn/${weatherInfo.icon}@2x.png`;
 </script>
 
 <template id="app">
   <h1>Weather Forecast</h1>
+  <input
+    class="form"
+    id="name"
+    v-model="text"
+    list="item"
+    placeholder="例：北海道/札幌市"
+    autoComplete="off"
+    @change="selectCity(text)"
+  />
 
-  <div>cityの値:{{ city }}</div>
-  <div><router-link :to="{ name: 'weatherForecast', query: { id: sendai } }">クエリをsendaiに変更</router-link></div>
-  <div><router-link :to="{ name: 'weatherForecast', query: { id: kyoto } }">クエリをkyotoに変更</router-link></div>
+  <datalist id="item">
+    <div id="item" v-for="(city, key) in cityNamelist" :key="key" className="user">
+      <option>{{ city }}</option>
+    </div>
+  </datalist>
 
-  <router-link :to="{ name: 'home' }">ホームに戻る</router-link>
-  <div>
-    <button @click="push">cityの値をsendaiに変更</button>
-  </div>
   <table>
     <tr>
       <th>CITY</th>
@@ -45,11 +70,14 @@ const kyoto = 'kyoto';
       <th>TEMP</th>
     </tr>
     <tr>
-      <td>{{ weatherInfo.name }}</td>
-      <td>{{ weatherInfo.weather }}</td>
-      <td>{{ weatherInfo.temp }}</td>
+      <td>{{ selectedCityName }}</td>
+      <td><img :src="iconImage" /></td>
+      <td>{{ weatherInfo.temp }}℃</td>
     </tr>
   </table>
+  <div>
+    <router-link :to="{ name: 'home' }">ホームに戻る</router-link>
+  </div>
 </template>
 
 <style>
@@ -65,5 +93,8 @@ table th {
 }
 table td {
   padding: 1rem;
+}
+.form {
+  margin: 2rem;
 }
 </style>
