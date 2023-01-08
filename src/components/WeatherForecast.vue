@@ -2,6 +2,7 @@
 import { watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { availableCities } from '@/utiles/availableCities';
+import { Search } from '@element-plus/icons-vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -57,7 +58,7 @@ watch(
 
 <template id="app">
   <h1>Weather Forecast</h1>
-  <input
+  <el-input
     class="form"
     id="name"
     v-model="text"
@@ -65,6 +66,7 @@ watch(
     placeholder="例：北海道/札幌市"
     autoComplete="off"
     @change="selectCity(text)"
+    :prefix-icon="Search"
   />
 
   <datalist id="item">
@@ -104,5 +106,6 @@ table td {
 }
 .form {
   margin: 2rem;
+  width: 300px;
 }
 </style>
