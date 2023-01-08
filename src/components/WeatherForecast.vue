@@ -5,37 +5,47 @@ import { availableCities } from '@/utiles/availableCities';
 
 const route = useRoute();
 const router = useRouter();
-const text = ref('');
-const cities = Object.keys(availableCities());
-const cityNamelist = Object.entries(availableCities()).map((city) => {
-  return city[1].name;
-});
 const APIKEY = process.env.VUE_APP_OPEN_WEATHER_API_KEY;
 if (!APIKEY) {
   throw new Error('環境変数が入っていません');
 }
 
-const res = await fetch(
-  `https://api.openweathermap.org/data/2.5/weather?q=${route.query.id}&units=metric&appid=${APIKEY}`
-);
-if (!res) {
-  throw new Error('fetchの結果が空です');
-}
-if (res.status !== 200) {
-  throw new Error('fetchに失敗しました');
-}
-const weatherInfoList = await res.json();
-const weatherInfo = {
-  name: weatherInfoList.name,
-  icon: weatherInfoList.weather[0].icon,
-  temp: Math.round(weatherInfoList.main.temp),
+const getWeatherInfo = async () => {
+  const res = await fetch(
+    `https://api.openweathermap.org/data/2.5/weather?q=${route.query.id}&units=metric&appid=${APIKEY}`
+  );
+  if (!res) {
+    throw new Error('fetchの結果が空です');
+  }
+  if (res.status !== 200) {
+    throw new Error('fetchに失敗しました');
+  }
+  const weatherInfoList = await res.json();
+  return weatherInfoList;
 };
-const selectedCityName = availableCities()[weatherInfo.name.toLowerCase()].name;
-const iconImage = `http://openweathermap.org/img/wn/${weatherInfo.icon}@2x.png`;
+
+const weatherController = async () => {
+  const weatherInfoList = await getWeatherInfo();
+  const weatherInfo = {
+    name: weatherInfoList.name,
+    icon: weatherInfoList.weather[0].icon,
+    temp: Math.round(weatherInfoList.main.temp),
+  };
+  return weatherInfo;
+};
+
 const selectCity = (selectedCity) => {
+  const cities = Object.keys(availableCities());
   const includeList = cities.filter((city) => availableCities()[city].name === selectedCity);
   router.push({ name: 'weatherForecast', query: { id: includeList } });
 };
+const text = ref('');
+const cityNamelist = Object.entries(availableCities()).map((city) => {
+  return city[1].name;
+});
+const weatherInfo = await weatherController();
+const selectedCityName = availableCities()[weatherInfo.name.toLowerCase()].name;
+const iconImage = `http://openweathermap.org/img/wn/${weatherInfo.icon}@2x.png`;
 
 watch(
   () => route.query.id,
