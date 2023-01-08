@@ -4,6 +4,26 @@ import { useRoute, useRouter } from 'vue-router';
 import { availableCities } from '@/utiles/availableCities';
 import { Search } from '@element-plus/icons-vue';
 
+type GetWeatherInfoOut = {
+  name: string;
+  weather: Array<{ icon: string }>;
+  main: {
+    temp: number;
+  };
+};
+type WeatherInfo = {
+  name: string;
+  weather: Array<{ icon: string }>;
+  main: {
+    temp: number;
+  };
+};
+type WeatherInfoControllerOut = {
+  name: string;
+  icon: string;
+  temp: number;
+};
+
 const route = useRoute();
 const router = useRouter();
 const APIKEY = process.env.VUE_APP_OPEN_WEATHER_API_KEY;
@@ -11,7 +31,7 @@ if (!APIKEY) {
   throw new Error('環境変数が入っていません');
 }
 
-const getWeatherInfo = async () => {
+const getWeatherInfo = async (): Promise<GetWeatherInfoOut> => {
   const res = await fetch(
     `https://api.openweathermap.org/data/2.5/weather?q=${route.query.id}&units=metric&appid=${APIKEY}`
   );
@@ -21,11 +41,11 @@ const getWeatherInfo = async () => {
   if (res.status !== 200) {
     throw new Error('fetchに失敗しました');
   }
-  const weatherInfoList = await res.json();
+  const weatherInfoList = (await res.json()) as WeatherInfo;
   return weatherInfoList;
 };
 
-const weatherController = async () => {
+const weatherController = async (): Promise<WeatherInfoControllerOut> => {
   const weatherInfoList = await getWeatherInfo();
   const weatherInfo = {
     name: weatherInfoList.name,
@@ -35,7 +55,7 @@ const weatherController = async () => {
   return weatherInfo;
 };
 
-const selectCity = (selectedCity) => {
+const selectCity = (selectedCity: string): void => {
   const cities = Object.keys(availableCities());
   const includeList = cities.filter((city) => availableCities()[city].name === selectedCity);
   router.push({ name: 'weatherForecast', query: { id: includeList } });
