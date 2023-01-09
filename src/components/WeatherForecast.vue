@@ -50,8 +50,8 @@ const weatherInfoController = async (): Promise<WeatherInfoControllerOut> => {
   const weatherInfoList = await getWeatherInfo();
   const weatherInfo = {
     name: weatherInfoList.name,
-    icon: weatherInfoList.weather[0].icon,
-    temp: Math.round(weatherInfoList.main.temp),
+    icon: weatherInfoList.weather[0]?.icon,
+    temp: Math.round(weatherInfoList.main?.temp),
   };
   return {
     selectedCityName: availableCities()[weatherInfo.name.toLowerCase()].name,
