@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { userDataController } from '@/utiles/userDataController';
 const userData = await userDataController();
-const city = 'nagoya';
 </script>
 
 <template>
-  <router-link :to="{ name: 'weatherForecast', query: { id: city } }">名古屋の天気</router-link>
+  <router-link :to="{ name: 'weatherForecast' }">天気予報ページ</router-link>
   <div v-for="(user, key) in userData" :key="key" className="user">
     <div>UserID: {{ user[0] }}</div>
     <div>Title: {{ user[1] }}</div>
